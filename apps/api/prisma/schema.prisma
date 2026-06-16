@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url = env("DATABASE_URL")
+}
+
+enum ShipmentStatus {
+    PENDING
+    OUT_FOR_DELIVERY
+    DELIVERED
+    FAILED
+}
+
+enum FailureReason {
+    ADDRESS_INCORRECT
+    CLIENT_ABSENT
+    COD_REFUSED
+    OTHER
+}
+
+model UploadBatch {
+  id          String   @id @default(uuid())
+  fileName    String?
+  totalRows   Int      @default(0)
+  successRows Int      @default(0)
+  failedRows  Int      @default(0)
+
+  status      String   @default("PROCESSING") // PROCESSING | DONE | FAILED
+
+  createdAt   DateTime @default(now())
+
+  shipments   Shipment[]
+}
+
+model Shipment {
+  id            String   @id @default(uuid())
+  orderId       String   @unique
+
+  batchId       String
+  batch         UploadBatch @relation(fields: [batchId], references: [id])
+
+  merchant      String
+  addressText   String
+
+  lat           Float?
+  lng           Float?
+
+  customerPhone String?
+  driver        String
+
+  status        ShipmentStatus @default(OUT_FOR_DELIVERY)
+  failureReason FailureReason?
+  codAmount     Float?
+
+  attemptedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
