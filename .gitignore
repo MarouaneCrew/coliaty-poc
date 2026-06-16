@@ -1,6 +1,26 @@
+# env files
 .env
 .env.*
-*.csv
+apps/api/.env
+apps/web/.env
+
+# dependencies
 node_modules/
-.next/
-dist/
+
+# next
+.next
+out
+
+# prisma
+**/node_modules/.prisma
+**/node_modules/@prisma/client
+
+# logs
+*.log
+
+# OS
+.DS_Store
+
+# builds
+dist
+build
