@@ -1,15 +1,11 @@
 import axios from 'axios';
 import { Shipment, DriverStats } from './types';
 
-// const api = axios.create({
-//     baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
-// });
-
-const api = axios.create({
+export const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
-console.log("API BASE:", api.defaults.baseURL);
+export const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const uploadCsv = async (file: File) => {
     const form = new FormData();
@@ -38,7 +34,7 @@ export const fetchDriverStats = async (date?: string) => {
 
 export async function fetchDailyStats(date: string) {
     const res = await fetch(
-        `http://localhost:3001/shipments/stats/daily?date=${date}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/shipments/stats/daily?date=${date}`,
     );
 
     if (!res.ok) throw new Error('Failed to fetch stats');

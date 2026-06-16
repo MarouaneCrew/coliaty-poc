@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchShipments } from '@/lib/api';
+import { API_URL, fetchShipments } from '@/lib/api';
 import dynamic from 'next/dynamic';
 import UploadForm from '@/components/UploadForm';
 import DriverTable from '@/components/DriverTable';
@@ -31,7 +31,7 @@ export default function DashboardPage() {
     queryKey: ['stats'],
     queryFn: () =>
       fetch(
-        `http://localhost:3001/shipments/stats/daily?date=${new Date().toISOString().split('T')[0]
+        `${API_URL}/shipments/stats/daily?date=${new Date().toISOString().split('T')[0]
         }`,
       ).then((r) => r.json()),
   });
@@ -40,7 +40,7 @@ export default function DashboardPage() {
     queryKey: ['failureReasons'],
     queryFn: () =>
       fetch(
-        `http://localhost:3001/shipments/stats/failure-reasons?date=${new Date().toISOString().split('T')[0]
+        `${API_URL}/shipments/stats/failure-reasons?date=${new Date().toISOString().split('T')[0]
         }`
       ).then((r) => r.json()),
   });
@@ -49,7 +49,7 @@ export default function DashboardPage() {
     queryKey: ['merchant-stats', statusFilter],
     queryFn: () =>
       fetch(
-        `http://localhost:3001/shipments/stats/merchants?date=${new Date().toISOString().split('T')[0]
+        `${API_URL}/shipments/stats/merchants?date=${new Date().toISOString().split('T')[0]
         }`
       ).then(r => r.json()),
   });
@@ -57,7 +57,7 @@ export default function DashboardPage() {
   const { data: batches } = useQuery({
     queryKey: ['batches'],
     queryFn: () =>
-      fetch('http://localhost:3001/shipments/batches')
+      fetch('${API_URL}/shipments/batches')
         .then(r => r.json()),
   });
 
