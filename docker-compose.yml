@@ -17,7 +17,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   api:
-    build: ./api
+    build: ./apps/api
     ports:
       - "3001:3001"
     environment:
@@ -25,7 +25,7 @@ services:
       GEOCODER_PROVIDER: nominatim
       NODE_ENV: development
     volumes:
-      - ./api:/app
+      - ./apps/api:/app
       - /app/node_modules
     command: npm run start:dev
     depends_on:
@@ -33,13 +33,13 @@ services:
         condition: service_healthy
   
   web:
-    build: ./web
+    build: ./apps/web
     ports:
       - "3000:3000"
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3001
     volumes:
-      - ./web:/app
+      - ./apps/web:/app
       - /app/node_modules
       - /app/.next
     command: npm run dev

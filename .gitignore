@@ -1,0 +1,6 @@
+.env
+.env.*
+*.csv
+node_modules/
+.next/
+dist/
