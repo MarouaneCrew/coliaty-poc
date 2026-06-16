@@ -1,9 +1,15 @@
 import axios from 'axios';
 import { Shipment, DriverStats } from './types';
 
+// const api = axios.create({
+//     baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+// });
+
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
+
+console.log("API BASE:", api.defaults.baseURL);
 
 export const uploadCsv = async (file: File) => {
     const form = new FormData();
