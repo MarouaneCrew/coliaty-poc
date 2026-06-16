@@ -6,9 +6,12 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
-      'https://coliaty-poc.vercel.app/'
-    ]
+      'https://coliaty-poc.vercel.app',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true,
   });
+  console.log('CORS enabled');
   await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();
