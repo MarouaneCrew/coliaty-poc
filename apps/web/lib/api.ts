@@ -14,7 +14,14 @@ export const uploadCsv = async (file: File) => {
     return data;
 };
 
-export const fetchShipments = async (filters?: { status?: string; driver?: string; }) => {
+export const fetchShipments = async (
+    filters?: {
+        status?: string;
+        driver?: string;
+        from?: string;
+        to?: string;
+    }
+) => {
     const params = new URLSearchParams(filters);
     const { data } = await api.get<Shipment[]>('/shipments', { params });
     return data;
@@ -25,19 +32,38 @@ export const fetchShipment = async (id: string) => {
     return data;
 };
 
-export const fetchDriverStats = async (date?: string) => {
+export const fetchDriverStats = async (
+    from?: string,
+    to?: string
+) => {
     const params = new URLSearchParams();
-    if (date) params.append('date', date);
-    const { data } = await api.get<DriverStats[]>('/drivers/stats', { params });
+
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+
+    const { data } = await api.get<DriverStats[]>(
+        '/drivers/stats',
+        { params }
+    );
+
     return data;
 };
 
-export async function fetchDailyStats(date: string) {
+export async function fetchStats(
+    from?: string,
+    to?: string,
+) {
+    const params = new URLSearchParams();
+
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+
     const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/shipments/stats/daily?date=${date}`,
+        `${API_URL}/shipments/stats?${params}`
     );
 
-    if (!res.ok) throw new Error('Failed to fetch stats');
+    if (!res.ok)
+        throw new Error('Failed to fetch stats');
 
     return res.json();
 }

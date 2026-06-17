@@ -6,22 +6,25 @@ import { ShipmentStatus } from '@prisma/client';
 export class ShipmentsAnalyticsService {
     constructor(private prisma: PrismaService) { }
 
-    async getDailyStats(date?: string) {
-        const targetDate = date ? new Date(date) : new Date();
+    private buildDateFilter(from?: string, to?: string) {
+        if (!from || !to) return {};
 
-        const start = new Date(targetDate);
-        start.setHours(0, 0, 0, 0);
+        const start = new Date(from);
 
-        const end = new Date(targetDate);
-        end.setHours(23, 59, 59, 999);
+        const end = new Date(to);
+        end.setDate(end.getDate() + 1);
 
-        const shipments = await this.prisma.shipment.findMany({
-            where: {
-                attemptedAt: {
-                    gte: start,
-                    lte: end,
-                },
+        return {
+            attemptedAt: {
+                gte: start,
+                lt: end,
             },
+        };
+    }
+
+    async getStats(from?: string, to?: string) {
+        const shipments = await this.prisma.shipment.findMany({
+            where: this.buildDateFilter(from, to)
         });
 
         const total = shipments.length;
@@ -53,19 +56,8 @@ export class ShipmentsAnalyticsService {
         };
     }
 
-    async getFailureReasons(date?: string) {
-        const where: any = {};
-
-        if (date) {
-            const start = new Date(date);
-            const end = new Date(date);
-            end.setHours(23, 59, 59, 999);
-
-            where.attemptedAt = {
-                gte: start,
-                lte: end,
-            };
-        }
+    async getFailureReasons(from?: string, to?: string) {
+        const where = this.buildDateFilter(from, to);
 
         const failed = await this.prisma.shipment.findMany({
             where: {
@@ -89,23 +81,8 @@ export class ShipmentsAnalyticsService {
         return counts;
     }
 
-    async getMerchantStats(date?: string) {
-        const targetDate = date ? new Date(date) : null;
-
-        const where: any = {};
-
-        if (targetDate) {
-            const start = new Date(targetDate);
-            start.setHours(0, 0, 0, 0);
-
-            const end = new Date(targetDate);
-            end.setHours(23, 59, 59, 999);
-
-            where.attemptedAt = {
-                gte: start,
-                lte: end,
-            };
-        }
+    async getMerchantStats(from?: string, to?: string) {
+        const where = this.buildDateFilter(from, to);
 
         const shipments = await this.prisma.shipment.findMany({
             where,

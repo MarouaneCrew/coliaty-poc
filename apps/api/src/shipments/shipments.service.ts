@@ -125,7 +125,8 @@ export class ShipmentsService {
         status?: string;
         driver?: string;
         merchant?: string;
-        date?: string;
+        from?: string;
+        to?: string;
         batchId?: string;
     }) {
         const where: any = {};
@@ -138,9 +139,10 @@ export class ShipmentsService {
         if (filters?.merchant) where.merchant = filters.merchant;
         if (filters?.batchId) where.batchId = filters.batchId;
 
-        if (filters?.date) {
-            const start = new Date(filters.date);
-            const end = new Date(start);
+        if (filters?.from && filters?.to) {
+            const start = new Date(filters.from);
+
+            const end = new Date(filters.to);
             end.setDate(end.getDate() + 1);
 
             where.attemptedAt = {

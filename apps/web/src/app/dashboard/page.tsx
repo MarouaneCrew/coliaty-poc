@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { API_URL, fetchShipments } from '@/lib/api';
 import dynamic from 'next/dynamic';
@@ -20,50 +20,111 @@ function KPI({ label, value }: any) {
 
 export default function DashboardPage() {
   const [statusFilter, setStatusFilter] = useState<string>('FAILED');
+  const today = new Date();
+
+  const defaultFrom = new Date(today);
+  defaultFrom.setDate(today.getDate() - 30);
+
+  const [fromDate, setFromDate] =
+    useState(defaultFrom.toISOString().split('T')[0]);
+
+  const [toDate, setToDate] =
+    useState(today.toISOString().split('T')[0]);
 
   const { data: shipments, isLoading } = useQuery({
-    queryKey: ['shipments', { status: statusFilter }],
-    queryFn: () => fetchShipments({ status: statusFilter }),
+    queryKey: ['shipments', statusFilter, fromDate, toDate],
+
+    queryFn: () =>
+      fetchShipments({
+        status: statusFilter,
+        from: fromDate,
+        to: toDate,
+      }),
     refetchInterval: 15000,
   });
 
+  // const { data: stats } = useQuery({
+  //   queryKey: ['stats', fromDate, toDate],
+
+  //   queryFn: () =>
+  //     fetch(
+  //       `${API_URL}/shipments/stats?from=${fromDate}&to=${toDate}`
+  //     ).then(r => r.json()),
+  // });
+
   const { data: stats } = useQuery({
-    queryKey: ['stats'],
-    queryFn: () =>
-      fetch(
-        `${API_URL}/shipments/stats/daily?date=${new Date().toISOString().split('T')[0]
-        }`,
-      ).then((r) => r.json()),
+    queryKey: ['stats', fromDate, toDate],
+    queryFn: async () => {
+      const res = await fetch(
+        `${API_URL}/shipments/stats?from=${fromDate}&to=${toDate}`
+      );
+      const text = await res.text();
+      return JSON.parse(text);
+    },
   });
 
   const { data: failureReasons } = useQuery({
-    queryKey: ['failureReasons'],
+    queryKey: ['failureReasons', fromDate, toDate],
+
     queryFn: () =>
       fetch(
-        `${API_URL}/shipments/stats/failure-reasons?date=${new Date().toISOString().split('T')[0]
-        }`
-      ).then((r) => r.json()),
+        `${API_URL}/shipments/stats/failure-reasons?from=${fromDate}&to=${toDate}`
+      ).then(r => r.json()),
   });
 
   const { data: merchants } = useQuery({
-    queryKey: ['merchant-stats', statusFilter],
+    queryKey: ['merchant-stats', fromDate, toDate],
+
     queryFn: () =>
       fetch(
-        `${API_URL}/shipments/stats/merchants?date=${new Date().toISOString().split('T')[0]
-        }`
+        `${API_URL}/shipments/stats/merchants?from=${fromDate}&to=${toDate}`
       ).then(r => r.json()),
   });
 
   const { data: batches } = useQuery({
     queryKey: ['batches'],
     queryFn: () =>
-      fetch('${API_URL}/shipments/batches')
+      fetch(`${API_URL}/shipments/batches`)
         .then(r => r.json()),
   });
+
+  useEffect(() => {
+    if (!stats) return;
+  }, [stats]);
 
   return (
     <div className="p-4 space-y-6 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold">Delivery Command Center</h1>
+
+      <div className="flex gap-4 items-center">
+
+        <div>
+          <label className="text-sm block">
+            From
+          </label>
+
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            className="border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="text-sm block">
+            To
+          </label>
+
+          <input
+            type="date"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            className="border p-2 rounded"
+          />
+        </div>
+
+      </div>
 
       <UploadForm />
 
@@ -112,7 +173,7 @@ export default function DashboardPage() {
         </table>
       </div>
 
-      <div className="mt-10">
+      {/* <div className="mt-10">
         <h2 className="text-xl font-semibold mb-3">
           Upload History
         </h2>
@@ -148,7 +209,7 @@ export default function DashboardPage() {
             ))}
           </tbody>
         </table>
-      </div>
+      </div> */}
 
       <div className="grid grid-cols-4 gap-4 mt-6">
         <div className="border rounded p-4">
@@ -213,7 +274,10 @@ export default function DashboardPage() {
 
       <div>
         <h2 className="text-xl font-semibold mb-2">Driver Scorecard</h2>
-        <DriverTable date={new Date().toISOString().split('T')[0]} />
+        <DriverTable
+          from={fromDate}
+          to={toDate}
+        />
       </div>
     </div>
   );

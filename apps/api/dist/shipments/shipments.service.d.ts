@@ -16,7 +16,8 @@ export declare class ShipmentsService {
         status?: string;
         driver?: string;
         merchant?: string;
-        date?: string;
+        from?: string;
+        to?: string;
         batchId?: string;
     }): Promise<{
         lat: number | null;

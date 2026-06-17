@@ -17,13 +17,16 @@ let DriversService = class DriversService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async getStats(date) {
+    async getStats(from, to) {
         const where = {};
-        if (date) {
-            const start = new Date(date);
-            const end = new Date(start);
+        if (from && to) {
+            const start = new Date(from);
+            const end = new Date(to);
             end.setDate(end.getDate() + 1);
-            where.attemptedAt = { gte: start, lt: end };
+            where.attemptedAt = {
+                gte: start,
+                lt: end,
+            };
         }
         const shipments = await this.prisma.shipment.findMany({ where });
         const driverMap = new Map();

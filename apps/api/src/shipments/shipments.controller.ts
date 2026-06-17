@@ -17,34 +17,47 @@ export class ShipmentsController {
     }
 
     @Get()
-    findAll(@Query('status') status: string, @Query('driver') driver: string, @Query('merchant') merchant: string, @Query('date') date: string) {
-        return this.shipmentsService.findAll({ status, driver, merchant, date });
+    findAll(
+        @Query('status') status: string,
+        @Query('driver') driver: string,
+        @Query('merchant') merchant: string,
+        @Query('from') from: string,
+        @Query('to') to: string,
+    ) {
+        return this.shipmentsService.findAll({ status, driver, merchant, from, to });
     }
 
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.shipmentsService.findOne(id);
-    }
-
-    @Get('/stats/daily')
-    getDaily(@Query('date') date?: string) {
-        return this.analytics.getDailyStats(date);
+    @Get('/stats')
+    getStats(
+        @Query('from') from?: string,
+        @Query('to') to?: string,
+    ) {
+        return this.analytics.getStats(from, to);
     }
 
     @Get('stats/failure-reasons')
     getFailureReasons(
-        @Query('date') date?: string,
+        @Query('from') from?: string,
+        @Query('to') to?: string,
     ) {
-        return this.analytics.getFailureReasons(date);
+        return this.analytics.getFailureReasons(from, to);
     }
 
     @Get('stats/merchants')
-    getMerchantStats(@Query('date') date?: string) {
-        return this.analytics.getMerchantStats(date);
+    getMerchantStats(
+        @Query('from') from?: string,
+        @Query('to') to?: string,
+    ) {
+        return this.analytics.getMerchantStats(from, to);
     }
 
     @Get('batches')
     getBatches() {
         return this.shipmentsService.getBatches();
+    }
+
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.shipmentsService.findOne(id);
     }
 }

@@ -30,23 +30,23 @@ let ShipmentsController = class ShipmentsController {
         }
         return this.shipmentsService.uploadCsv(file);
     }
-    findAll(status, driver, merchant, date) {
-        return this.shipmentsService.findAll({ status, driver, merchant, date });
+    findAll(status, driver, merchant, from, to) {
+        return this.shipmentsService.findAll({ status, driver, merchant, from, to });
     }
-    findOne(id) {
-        return this.shipmentsService.findOne(id);
+    getStats(from, to) {
+        return this.analytics.getStats(from, to);
     }
-    getDaily(date) {
-        return this.analytics.getDailyStats(date);
+    getFailureReasons(from, to) {
+        return this.analytics.getFailureReasons(from, to);
     }
-    getFailureReasons(date) {
-        return this.analytics.getFailureReasons(date);
-    }
-    getMerchantStats(date) {
-        return this.analytics.getMerchantStats(date);
+    getMerchantStats(from, to) {
+        return this.analytics.getMerchantStats(from, to);
     }
     getBatches() {
         return this.shipmentsService.getBatches();
+    }
+    findOne(id) {
+        return this.shipmentsService.findOne(id);
     }
 };
 exports.ShipmentsController = ShipmentsController;
@@ -63,37 +63,34 @@ __decorate([
     __param(0, (0, common_1.Query)('status')),
     __param(1, (0, common_1.Query)('driver')),
     __param(2, (0, common_1.Query)('merchant')),
-    __param(3, (0, common_1.Query)('date')),
+    __param(3, (0, common_1.Query)('from')),
+    __param(4, (0, common_1.Query)('to')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], ShipmentsController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, common_1.Get)('/stats'),
+    __param(0, (0, common_1.Query)('from')),
+    __param(1, (0, common_1.Query)('to')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
-], ShipmentsController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.Get)('/stats/daily'),
-    __param(0, (0, common_1.Query)('date')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], ShipmentsController.prototype, "getDaily", null);
+], ShipmentsController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('stats/failure-reasons'),
-    __param(0, (0, common_1.Query)('date')),
+    __param(0, (0, common_1.Query)('from')),
+    __param(1, (0, common_1.Query)('to')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], ShipmentsController.prototype, "getFailureReasons", null);
 __decorate([
     (0, common_1.Get)('stats/merchants'),
-    __param(0, (0, common_1.Query)('date')),
+    __param(0, (0, common_1.Query)('from')),
+    __param(1, (0, common_1.Query)('to')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], ShipmentsController.prototype, "getMerchantStats", null);
 __decorate([
@@ -102,6 +99,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ShipmentsController.prototype, "getBatches", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ShipmentsController.prototype, "findOne", null);
 exports.ShipmentsController = ShipmentsController = __decorate([
     (0, common_1.Controller)('shipments'),
     __metadata("design:paramtypes", [shipments_service_1.ShipmentsService, shipments_analytics_1.ShipmentsAnalyticsService])

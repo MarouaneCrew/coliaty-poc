@@ -6,7 +6,10 @@ export class DriversController {
     constructor(private readonly driversService: DriversService) { }
 
     @Get('stats')
-    getStats(@Query('date') date: string) {
-        return this.driversService.getStats(date);
+    getStats(
+        @Query('from') from?: string,
+        @Query('to') to?: string,
+    ) {
+        return this.driversService.getStats(from, to);
     }
 }

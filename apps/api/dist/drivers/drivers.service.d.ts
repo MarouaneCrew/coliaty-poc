@@ -2,7 +2,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export declare class DriversService {
     private prisma;
     constructor(prisma: PrismaService);
-    getStats(date?: string): Promise<{
+    getStats(from?: string, to?: string): Promise<{
         driver: string;
         total: number;
         delivered: number;

@@ -2,7 +2,7 @@ import { DriversService } from './drivers.service';
 export declare class DriversController {
     private readonly driversService;
     constructor(driversService: DriversService);
-    getStats(date: string): Promise<{
+    getStats(from?: string, to?: string): Promise<{
         driver: string;
         total: number;
         delivered: number;

@@ -2,7 +2,8 @@ import { PrismaService } from '../prisma/prisma.service';
 export declare class ShipmentsAnalyticsService {
     private prisma;
     constructor(prisma: PrismaService);
-    getDailyStats(date?: string): Promise<{
+    private buildDateFilter;
+    getStats(from?: string, to?: string): Promise<{
         total: number;
         delivered: number;
         failed: number;
@@ -11,11 +12,11 @@ export declare class ShipmentsAnalyticsService {
         failureRate: number;
         codTotal: number;
     }>;
-    getFailureReasons(date?: string): Promise<{
+    getFailureReasons(from?: string, to?: string): Promise<{
         ADDRESS_INCORRECT: number;
         CLIENT_ABSENT: number;
         COD_REFUSED: number;
         OTHER: number;
     }>;
-    getMerchantStats(date?: string): Promise<any[]>;
+    getMerchantStats(from?: string, to?: string): Promise<any[]>;
 }

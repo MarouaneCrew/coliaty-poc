@@ -10,41 +10,24 @@ export declare class ShipmentsController {
         failed: number;
         total: number;
     }>;
-    findAll(status: string, driver: string, merchant: string, date: string): Promise<{
-        lat: number | null;
-        lng: number | null;
+    findAll(status: string, driver: string, merchant: string, from: string, to: string): Promise<{
         id: string;
+        status: import("@prisma/client").$Enums.ShipmentStatus;
+        createdAt: Date;
+        driver: string;
+        merchant: string;
         orderId: string;
         batchId: string;
-        merchant: string;
         addressText: string;
+        lat: number | null;
+        lng: number | null;
         customerPhone: string | null;
-        driver: string;
-        status: import("@prisma/client").$Enums.ShipmentStatus;
         failureReason: import("@prisma/client").$Enums.FailureReason | null;
         codAmount: number | null;
         attemptedAt: Date | null;
-        createdAt: Date;
         updatedAt: Date;
     }[]>;
-    findOne(id: string): Promise<{
-        lat: number | null;
-        lng: number | null;
-        id: string;
-        orderId: string;
-        batchId: string;
-        merchant: string;
-        addressText: string;
-        customerPhone: string | null;
-        driver: string;
-        status: import("@prisma/client").$Enums.ShipmentStatus;
-        failureReason: import("@prisma/client").$Enums.FailureReason | null;
-        codAmount: number | null;
-        attemptedAt: Date | null;
-        createdAt: Date;
-        updatedAt: Date;
-    } | null>;
-    getDaily(date?: string): Promise<{
+    getStats(from?: string, to?: string): Promise<{
         total: number;
         delivered: number;
         failed: number;
@@ -53,20 +36,37 @@ export declare class ShipmentsController {
         failureRate: number;
         codTotal: number;
     }>;
-    getFailureReasons(date?: string): Promise<{
+    getFailureReasons(from?: string, to?: string): Promise<{
         ADDRESS_INCORRECT: number;
         CLIENT_ABSENT: number;
         COD_REFUSED: number;
         OTHER: number;
     }>;
-    getMerchantStats(date?: string): Promise<any[]>;
+    getMerchantStats(from?: string, to?: string): Promise<any[]>;
     getBatches(): Promise<{
         id: string;
-        status: string;
-        createdAt: Date;
         fileName: string | null;
         totalRows: number;
         successRows: number;
         failedRows: number;
+        status: string;
+        createdAt: Date;
     }[]>;
+    findOne(id: string): Promise<{
+        id: string;
+        status: import("@prisma/client").$Enums.ShipmentStatus;
+        createdAt: Date;
+        driver: string;
+        merchant: string;
+        orderId: string;
+        batchId: string;
+        addressText: string;
+        lat: number | null;
+        lng: number | null;
+        customerPhone: string | null;
+        failureReason: import("@prisma/client").$Enums.FailureReason | null;
+        codAmount: number | null;
+        attemptedAt: Date | null;
+        updatedAt: Date;
+    } | null>;
 }

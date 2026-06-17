@@ -20,16 +20,17 @@ let DriversController = class DriversController {
     constructor(driversService) {
         this.driversService = driversService;
     }
-    getStats(date) {
-        return this.driversService.getStats(date);
+    getStats(from, to) {
+        return this.driversService.getStats(from, to);
     }
 };
 exports.DriversController = DriversController;
 __decorate([
     (0, common_1.Get)('stats'),
-    __param(0, (0, common_1.Query)('date')),
+    __param(0, (0, common_1.Query)('from')),
+    __param(1, (0, common_1.Query)('to')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], DriversController.prototype, "getStats", null);
 exports.DriversController = DriversController = __decorate([
