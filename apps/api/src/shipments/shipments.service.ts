@@ -28,8 +28,41 @@ export class ShipmentsService {
             },
         });
 
+        // 2. Parse CSV
         const records: any[] = await this.parseCsv(file.buffer);
 
+        // 3. Strict schema validation
+        const REQUIRED_COLUMNS = [
+            'order_id',
+            'merchant',
+            'address',
+            'customer_phone',
+            'driver',
+            'status',
+            'failure_reason',
+            'cod_amount',
+        ];
+
+        const headers = Object.keys(records[0] || {});
+
+        const missing = REQUIRED_COLUMNS.filter(
+            (col) => !headers.includes(col),
+        );
+
+        const extra = headers.filter(
+            (col) => !REQUIRED_COLUMNS.includes(col),
+        );
+
+        if (missing.length > 0) {
+            throw new BadRequestException({
+                error: 'INVALID_FILE_SCHEMA',
+                message: 'CSV structure does not match expected format',
+                missingColumns: missing,
+                extraColumns: extra,
+            });
+        }
+
+        // 4. Process rows
         const shipments: any[] = [];
         let success = 0;
         let failed = 0;
@@ -46,13 +79,11 @@ export class ShipmentsService {
                 cod_amount,
             } = row;
 
-            // 2. validate row
             if (!order_id || !address) {
                 failed++;
                 continue;
             }
 
-            // 3. status mapping
             let shipmentStatus: ShipmentStatus =
                 ShipmentStatus.OUT_FOR_DELIVERY;
 
@@ -67,7 +98,6 @@ export class ShipmentsService {
                 failReason = this.mapFailureReason(failure_reason);
             }
 
-            // 4. insert shipment safely
             try {
                 const shipment = await this.prisma.shipment.create({
                     data: {
@@ -77,7 +107,6 @@ export class ShipmentsService {
                         merchant: merchant || '',
                         addressText: address,
 
-                        // geocoding will be done asynchronously later
                         lat: null,
                         lng: null,
 
@@ -85,7 +114,9 @@ export class ShipmentsService {
                         driver: driver || 'Unassigned',
                         status: shipmentStatus,
                         failureReason: failReason,
-                        codAmount: cod_amount ? parseFloat(cod_amount) : null,
+                        codAmount: cod_amount
+                            ? parseFloat(cod_amount)
+                            : null,
                         attemptedAt: new Date(),
                     },
                 });
@@ -93,16 +124,14 @@ export class ShipmentsService {
                 success++;
                 shipments.push(shipment);
 
-                // enqueue geocoding
+                // async geocoding
                 this.geocodingQueue.add(shipment.id);
-            } catch (e) {
-                // handles duplicate orderId or DB errors
+            } catch {
                 failed++;
-                continue;
             }
         }
 
-        // 5. update batch stats
+        // 5. update batch
         await this.prisma.uploadBatch.update({
             where: { id: batch.id },
             data: {
@@ -141,7 +170,6 @@ export class ShipmentsService {
 
         if (filters?.from && filters?.to) {
             const start = new Date(filters.from);
-
             const end = new Date(filters.to);
             end.setDate(end.getDate() + 1);
 
@@ -163,12 +191,15 @@ export class ShipmentsService {
         });
     }
 
+    // ----------------------------
+    // CSV PARSER (FIXED)
+    // ----------------------------
     private parseCsv(buffer: Buffer): Promise<any[]> {
         return new Promise((resolve, reject) => {
             const records: any[] = [];
 
             const parser = parse({
-                columns: true,
+                columns: (header) => header.map((h) => h.trim()),
                 skip_empty_lines: true,
                 trim: true,
             });

@@ -39,6 +39,27 @@ let ShipmentsService = class ShipmentsService {
             },
         });
         const records = await this.parseCsv(file.buffer);
+        const REQUIRED_COLUMNS = [
+            'order_id',
+            'merchant',
+            'address',
+            'customer_phone',
+            'driver',
+            'status',
+            'failure_reason',
+            'cod_amount',
+        ];
+        const headers = Object.keys(records[0] || {});
+        const missing = REQUIRED_COLUMNS.filter((col) => !headers.includes(col));
+        const extra = headers.filter((col) => !REQUIRED_COLUMNS.includes(col));
+        if (missing.length > 0) {
+            throw new common_1.BadRequestException({
+                error: 'INVALID_FILE_SCHEMA',
+                message: 'CSV structure does not match expected format',
+                missingColumns: missing,
+                extraColumns: extra,
+            });
+        }
         const shipments = [];
         let success = 0;
         let failed = 0;
@@ -70,7 +91,9 @@ let ShipmentsService = class ShipmentsService {
                         driver: driver || 'Unassigned',
                         status: shipmentStatus,
                         failureReason: failReason,
-                        codAmount: cod_amount ? parseFloat(cod_amount) : null,
+                        codAmount: cod_amount
+                            ? parseFloat(cod_amount)
+                            : null,
                         attemptedAt: new Date(),
                     },
                 });
@@ -78,9 +101,8 @@ let ShipmentsService = class ShipmentsService {
                 shipments.push(shipment);
                 this.geocodingQueue.add(shipment.id);
             }
-            catch (e) {
+            catch {
                 failed++;
-                continue;
             }
         }
         await this.prisma.uploadBatch.update({
@@ -133,7 +155,7 @@ let ShipmentsService = class ShipmentsService {
         return new Promise((resolve, reject) => {
             const records = [];
             const parser = (0, csv_parse_1.parse)({
-                columns: true,
+                columns: (header) => header.map((h) => h.trim()),
                 skip_empty_lines: true,
                 trim: true,
             });
